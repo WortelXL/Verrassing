@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Er komt een kleintje aan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #fdf8ee; --bg2: #eef6ef;
+    --accent: #6fae8f; --accent-soft: #d8ecdf; --accent-deep: #3f7a5f;
+    --ink: #33403a; --muted: #6f7d76; --card: rgba(255,255,255,.75);
+  }
+  body[data-gender="meisje"] { --bg1:#fff5f8; --bg2:#fde4ee; --accent:#ec7fa7; --accent-soft:#fbd3e2; --accent-deep:#b8456f; }
+  body[data-gender="jongen"] { --bg1:#f3f8ff; --bg2:#dcebfd; --accent:#5f9fe3; --accent-soft:#cfe3fb; --accent-deep:#2f6aab; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: 'Nunito', system-ui, sans-serif; color: var(--ink);
+    background: radial-gradient(circle at 20% 10%, var(--bg2), transparent 55%),
+                radial-gradient(circle at 85% 90%, var(--accent-soft), transparent 50%), var(--bg1);
+    min-height: 100vh; overflow-x: hidden; transition: background .8s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 16px;
+  }
+  .bubble { position: fixed; border-radius: 50%; background: var(--accent-soft); opacity: .55; z-index: 0;
+            animation: float 14s ease-in-out infinite; pointer-events: none; }
+  @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-30px) } }
+
+  main { position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; }
+  .badge { display: inline-block; padding: 6px 16px; border-radius: 999px; background: var(--card);
+           color: var(--accent-deep); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: 13px;
+           box-shadow: 0 2px 12px rgba(0,0,0,.05); }
+  h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: clamp(34px, 7vw, 60px); line-height: 1.05;
+       margin: 18px 0 10px; color: var(--accent-deep); }
+  .hello { font-size: clamp(18px, 3.4vw, 22px); font-weight: 600; margin: 0 0 6px; }
+  .msg { color: var(--muted); font-size: 17px; max-width: 520px; margin: 0 auto 34px; line-height: 1.5; }
+
+  .baby { font-size: 64px; display: inline-block; animation: rock 3s ease-in-out infinite; transform-origin: 50% 90%; }
+  @keyframes rock { 0%,100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
+
+  .count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 auto 30px; max-width: 620px; }
+  .unit { background: var(--card); backdrop-filter: blur(6px); border-radius: 22px; padding: 18px 6px 14px;
+          box-shadow: 0 8px 30px rgba(0,0,0,.06); border: 2px solid var(--accent-soft); }
+  .num { font-family: 'Fraunces', serif; font-size: clamp(30px, 8vw, 56px); font-weight: 700; color: var(--accent);
+         font-variant-numeric: tabular-nums; line-height: 1; }
+  .lbl { font-size: 13px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; }
+
+  .info { background: var(--card); border-radius: 22px; padding: 20px 22px; max-width: 620px; margin: 0 auto;
+          box-shadow: 0 8px 30px rgba(0,0,0,.05); }
+  .row { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+  .bar { height: 14px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent-soft), var(--accent)); border-radius: 999px; transition: width 1.2s ease; }
+  .fruit { margin-top: 14px; color: var(--muted); font-size: 15px; }
+  .fruit b { color: var(--ink); }
+  .date { margin-top: 22px; color: var(--muted); font-size: 15px; }
+
+  .gear { position: fixed; right: 16px; bottom: 16px; z-index: 2; width: 42px; height: 42px; border-radius: 50%;
+          background: var(--card); display: grid; place-items: center; text-decoration: none; color: var(--muted);
+          box-shadow: 0 4px 14px rgba(0,0,0,.08); opacity: .6; transition: opacity .2s; }
+  .gear:hover { opacity: 1; }
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
+  @media (max-width: 480px) { .count { gap: 8px } .unit { border-radius: 16px; padding: 14px 2px 10px } .lbl { font-size: 11px } }
+</style>
+</head>
+<body data-gender="onbekend">
+<canvas id="confetti"></canvas>
+<main>
+  <span class="badge" id="badge">Grote verrassing</span>
+  <div style="margin-top:18px"><span class="baby">👶</span></div>
+  <h1 id="title">Er komt een kleintje aan!</h1>
+  <p class="hello" id="hello"></p>
+  <p class="msg" id="message"></p>
+
+  <div class="count">
+    <div class="unit"><div class="num" id="d">0</div><div class="lbl">dagen</div></div>
+    <div class="unit"><div class="num" id="h">0</div><div class="lbl">uur</div></div>
+    <div class="unit"><div class="num" id="m">0</div><div class="lbl">minuten</div></div>
+    <div class="unit"><div class="num" id="s">0</div><div class="lbl">seconden</div></div>
+  </div>
+
+  <div class="info">
+    <div class="row"><span id="week">Week –</span><span id="pct">0%</span></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="fruit" id="fruit"></div>
+  </div>
+  <div class="date" id="date"></div>
+</main>
+
+<a class="gear" href="/instellingen" title="Instellingen" aria-label="Instellingen">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</a>
+
+<script>
+const FRUIT = {4:['een maanzaadje','🌱'],5:['een sesamzaadje','🌱'],6:['een linze','🫘'],7:['een blauwe bes','🫐'],8:['een framboos','🍓'],
+  9:['een kers','🍒'],10:['een aardbei','🍓'],11:['een vijg','🟣'],12:['een limoen','🍋'],13:['een citroen','🍋'],14:['een nectarine','🍑'],
+  15:['een appel','🍎'],16:['een avocado','🥑'],17:['een ui','🧅'],18:['een paprika','🫑'],19:['een tomaat','🍅'],20:['een banaan','🍌'],
+  21:['een wortel','🥕'],22:['een papaja','🥭'],23:['een grapefruit','🍊'],24:['een maïskolf','🌽'],25:['een bloemkool','🥦'],
+  26:['een krop sla','🥬'],27:['een broccoli','🥦'],28:['een aubergine','🍆'],29:['een butternut','🎃'],30:['een komkommer','🥒'],
+  31:['een kokosnoot','🥥'],32:['een ananas','🍍'],33:['een bleekselderij','🥬'],34:['een meloen','🍈'],35:['een honingmeloen','🍈'],
+  36:['een romaine sla','🥬'],37:['een snijbiet','🥬'],38:['een prei','🥬'],39:['een watermeloen','🍉'],40:['een pompoen','🎃']};
+const pad = n => String(n).padStart(2, '0');
+let due;
+
+async function init() {
+  const s = await fetch('/api/public').then(r => r.json());
+  document.body.dataset.gender = s.gender;
+  document.getElementById('title').textContent = s.title;
+  document.getElementById('hello').textContent = s.babyName ? `Lieve ${s.name}, kleine ${s.babyName} is onderweg!` : `Lieve ${s.name},`;
+  document.getElementById('message').textContent = s.message;
+  document.getElementById('badge').textContent =
+    s.gender === 'meisje' ? 'Het wordt een meisje!' : s.gender === 'jongen' ? 'Het wordt een jongen!' : 'Grote verrassing';
+  due = new Date(s.dueDate + 'T00:00:00');
+  document.getElementById('date').textContent = 'Uitgerekend op ' +
+    due.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  tick(); setInterval(tick, 1000);
+  progress();
+  confetti();
+}
+
+function tick() {
+  let diff = Math.max(0, due - new Date());
+  const d = Math.floor(diff / 864e5); diff -= d * 864e5;
+  const h = Math.floor(diff / 36e5); diff -= h * 36e5;
+  const m = Math.floor(diff / 6e4); diff -= m * 6e4;
+  document.getElementById('d').textContent = d;
+  document.getElementById('h').textContent = pad(h);
+  document.getElementById('m').textContent = pad(m);
+  document.getElementById('s').textContent = pad(Math.floor(diff / 1000));
+}
+
+function progress() {
+  const total = 280 * 864e5, start = due - total;
+  const elapsed = Math.min(total, Math.max(0, new Date() - start));
+  const pct = Math.round(elapsed / total * 100);
+  const w = Math.floor(elapsed / (7 * 864e5)), dd = Math.floor(elapsed / 864e5) % 7;
+  document.getElementById('week').textContent = `Zwangerschapsweek ${Math.min(w, 40)}+${dd}`;
+  document.getElementById('pct').textContent = pct + '%';
+  setTimeout(() => document.getElementById('fill').style.width = pct + '%', 100);
+  const f = FRUIT[Math.min(40, Math.max(4, w))];
+  document.getElementById('fruit').innerHTML = `Het kindje is nu ongeveer zo groot als <b>${f[0]}</b> ${f[1]}`;
+}
+
+function bubbles() {
+  for (let i = 0; i < 7; i++) {
+    const b = document.createElement('div'); b.className = 'bubble';
+    const size = 60 + Math.random() * 160;
+    Object.assign(b.style, { width: size + 'px', height: size + 'px', left: Math.random() * 100 + 'vw',
+      top: Math.random() * 100 + 'vh', animationDelay: (-Math.random() * 14) + 's' });
+    document.body.appendChild(b);
+  }
+}
+
+function confetti() {
+  const c = document.getElementById('confetti'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const cs = getComputedStyle(document.body);
+  const colors = ['--accent', '--accent-soft', '--accent-deep'].map(v => cs.getPropertyValue(v).trim()).concat(['#ffd97a']);
+  const parts = Array.from({ length: 140 }, () => ({
+    x: Math.random() * c.width, y: -20 - Math.random() * c.height * .6, r: 4 + Math.random() * 6,
+    vy: 2 + Math.random() * 3, vx: -1 + Math.random() * 2, a: Math.random() * 6, col: colors[Math.floor(Math.random() * colors.length)] }));
+  let frames = 0;
+  (function draw() {
+    x.clearRect(0, 0, c.width, c.height);
+    parts.forEach(p => { p.y += p.vy; p.x += p.vx + Math.sin(p.a += .05); x.fillStyle = p.col;
+      x.beginPath(); x.ellipse(p.x, p.y, p.r, p.r * .6, p.a, 0, 7); x.fill(); });
+    if (++frames < 320) requestAnimationFrame(draw); else x.clearRect(0, 0, c.width, c.height);
+  })();
+}
+
+bubbles();
+init();
+</script>
+</body>
+</html>

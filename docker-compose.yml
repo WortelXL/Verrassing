@@ -1,0 +1,15 @@
+services:
+  babyverrassing:
+    build: .
+    container_name: babyverrassing
+    ports:
+      - "80:80"
+    environment:
+      - TZ=Europe/Amsterdam
+      # Alleen gebruikt bij de allereerste start (daarna via de instellingenpagina):
+      - DEFAULT_PIN=1234
+      - SISTER_NAME=Zusje
+      - DUE_DATE=2027-04-15
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
